@@ -12,14 +12,16 @@ const invokeSafe = async (
   lambda: Lambda,
   event: object,
   stopOnError: boolean,
+  dryRun: boolean,
   arn: string
 ): Promise<void> => {
   try {
-    log.trace(`invoking ${arn}`)
+    const invocationType = dryRun ? 'DryRun' : 'Event'
+    log.trace(`${invocationType} invocation of ${arn}`)
     await lambda
       .invoke({
         FunctionName: arn,
-        InvocationType: 'DryRun',
+        InvocationType: invocationType,
         Payload: JSON.stringify(event)
       })
       .promise()
@@ -56,7 +58,7 @@ const handler = async (args): Promise<void> => {
 
   log.start(`begin invocations`)
 
-  const invoke = invokeSafe.bind(null, lambda, lambdaEvent, args['stop-on-error'])
+  const invoke = invokeSafe.bind(null, lambda, lambdaEvent, args['stop-on-error'], args['dry-run'])
 
   await Promise.each(list, invoke)
 
@@ -86,9 +88,12 @@ export = {
         type: 'string'
       })
       .option('stop-on-error', {
-        describe: chalk.green(
-          'stop on first invocation error encountered'
-        ),
+        describe: chalk.green('stop on first invocation error encountered'),
+        type: 'boolean',
+        default: false
+      })
+      .option('dry-run', {
+        describe: chalk.green('test invocations possibility'),
         type: 'boolean',
         default: false
       })
