@@ -9,12 +9,15 @@ export const verbosityLevels = {
 }
 
 export const middleware = (args): void => {
-  const { verbosity, profile } = args
+  const { verbosity, profile, region } = args
 
   log.level = verbosityLevels[verbosity] || 3
 
   if (profile) {
     log.debug(`setting aws sdk profile to ${profile}`)
     AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile })
+
+    log.debug(`setting aws sdk region to ${region}`)
+    AWS.config.region = region
   }
 }

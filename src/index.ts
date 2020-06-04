@@ -34,6 +34,11 @@ yargs
     describe: 'set aws sdk profile',
     type: 'string'
   })
+  .option('region', {
+    describe: 'set aws cloud region',
+    type: 'string',
+    default: 'us-east-1'
+  })
   .fail((msg, err) => {
     if (msg) {
       log.error(msg)
