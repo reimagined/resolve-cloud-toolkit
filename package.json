@@ -1,0 +1,39 @@
+{
+  "name": "resolve-cloud-toolkit",
+  "version": "0.0.1",
+  "dependencies": {
+    "aws-sdk": "^2.689.0",
+    "bluebird": "^3.7.2",
+    "consola": "^2.11.0",
+    "lodash": "^4.17.15",
+    "yargs": "^15.3.1",
+    "chalk": "^4.0.0"
+  },
+  "scripts": {
+    "prepare": "tsc",
+    "lint": "eslint --ignore-path=.prettierignore './src/**/*.{ts,tsx}'",
+    "build": "tsc",
+    "start": "ts-node ./src/index.ts"
+  },
+  "bin": {
+    "resolve-cloud-toolkit": "./lib/index.js"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.33",
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^12.12.14",
+    "@types/yargs": "^15.0.5",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.3.3",
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.4.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.0",
+    "prettier": "^1.18.2",
+    "prettier-eslint-cli": "^5.0.0",
+    "pretty-quick": "^1.6.0",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.6.3"
+  }
+}
