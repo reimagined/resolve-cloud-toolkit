@@ -5,9 +5,15 @@ import path from 'path'
 import fs from 'fs'
 import { execSync } from 'child_process'
 import log from 'consola'
-import { ensureRoleWithPolicy } from 'resolve-cloud-common/iam'
+import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents'
 import { Options, retry } from 'resolve-cloud-common/utils'
-import { observerLambdaName, observerRoleName } from '../../utils'
+import { addFunctionPermission, deleteFunctionPermission } from 'resolve-cloud-common/lambda'
+import {
+  observerLambdaName,
+  observerRoleName,
+  observerCloudWatchRuleName,
+  observerEvent
+} from '../../utils'
 
 const observerPath = path.resolve(__dirname, '../../../observer')
 const observerRole = path.resolve(observerPath, 'role.json')
@@ -99,12 +105,15 @@ const ensureLambda = async (args, roleArn: string) => {
 
   let exist = true
 
+  let functionArn = 'unknown'
+
   try {
-    await lambda
+    const result = await lambda
       .getFunction({
         FunctionName: functionName
       })
       .promise()
+    functionArn = result?.Configuration?.FunctionArn as string
   } catch (error) {
     if (error.code === 'ResourceNotFoundException') {
       exist = false
@@ -126,7 +135,7 @@ const ensureLambda = async (args, roleArn: string) => {
   if (!exist) {
     log.debug(`lambda does not exist, creating`)
 
-    await lambdaCreateFunction({
+    const result = await lambdaCreateFunction({
       FunctionName: functionName,
       Role: roleArn,
       Code: {
@@ -138,6 +147,8 @@ const ensureLambda = async (args, roleArn: string) => {
         Variables: environment
       }
     })
+
+    functionArn = result?.FunctionArn as string
 
     log.debug(`lambda created successfully`)
   } else {
@@ -160,6 +171,67 @@ const ensureLambda = async (args, roleArn: string) => {
 
     log.debug(`lambda environment updated successfully`)
   }
+
+  return { functionArn }
+}
+
+const ensureCloudWatchEvent = async (args, lambdaArn): Promise<void> => {
+  const cwe = new CloudWatchEvents()
+
+  const ruleName = observerCloudWatchRuleName(args.identifier)
+  const schedule = 'rate(1 minute)'
+
+  log.debug(`putting cloud watch rule ${ruleName}`)
+  const { RuleArn } = await cwe
+    .putRule({
+      Name: ruleName,
+      ScheduleExpression: schedule
+    })
+    .promise()
+  log.debug(`cloud watch rule set`)
+  log.debug(`adding target ${lambdaArn} to the rule`)
+
+  const ruleArn = RuleArn as string
+
+  await cwe
+    .putTargets({
+      Rule: ruleName,
+      Targets: [
+        {
+          Id: 'observer',
+          Arn: lambdaArn,
+          Input: JSON.stringify(
+            observerEvent({
+              publish: true
+            })
+          )
+        }
+      ]
+    })
+    .promise()
+
+  log.debug(`target added`)
+  log.debug(`removing function permission to be launched by cloud watch`)
+
+  await deleteFunctionPermission({
+    Region: args.region,
+    StatementId: 'cloud-watch-event',
+    FunctionName: lambdaArn
+  })
+
+  log.debug(`function permission removed successfully`)
+  log.debug(`adding function permission to be launched by cloud watch`)
+
+  await addFunctionPermission({
+    Region: args.region,
+    FunctionName: lambdaArn,
+    Action: 'lambda:InvokeFunction',
+    Principal: 'events.amazonaws.com',
+    SourceArn: ruleArn,
+    StatementId: 'cloud-watch-event'
+  })
+
+  log.debug(`function permission added successfully`)
 }
 
 const handler = async (args): Promise<void> => {
@@ -176,7 +248,8 @@ const handler = async (args): Promise<void> => {
   }
 
   const { roleArn } = await ensureRole(args)
-  await ensureLambda(args, roleArn)
+  const { functionArn } = await ensureLambda(args, roleArn)
+  await ensureCloudWatchEvent(args, functionArn)
 
   log.debug(`(${args.identifier}) observer installed successfully`)
 }
