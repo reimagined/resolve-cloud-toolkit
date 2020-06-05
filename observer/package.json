@@ -7,8 +7,8 @@
   },
   "scripts": {
     "lint": "eslint --ignore-path=../.prettierignore './src/**/*.{ts,tsx}'",
-    "build": "tsc",
-    "archive": "rimraf ./code.zip build && mkdir build && cp -r lib ./build && cp package.json ./build && cd build && yarn install --production && node ../archive.js . ../code.zip"
+    "build": "rimraf ./lib && tsc",
+    "archive": "yarn build && rimraf ./code.zip build && mkdir build && cp -r lib ./build && cp package.json ./build && cd build && yarn install --production && node ../archive.js . ../code.zip"
   },
   "bin": {
     "resolve-cloud-toolkit": "./lib/index.js"

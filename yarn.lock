@@ -1319,6 +1319,16 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
+lodash.differencewith@^4.5.0:
+  version "4.5.0"
+  resolved "http://npm.resolve-dev.ml:10080/lodash.differencewith/-/lodash.differencewith-4.5.0.tgz#bafafbc918b55154e179176a00bb0aefaac854b7"
+  integrity sha1-uvr7yRi1UVTheRdqALsK76rIVLc=
+
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "http://npm.resolve-dev.ml:10080/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
+
 lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "http://npm.resolve-dev.ml:10080/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
@@ -1827,6 +1837,16 @@ require-relative@^0.8.7:
   version "0.8.7"
   resolved "http://npm.resolve-dev.ml:10080/require-relative/-/require-relative-0.8.7.tgz#7999539fc9e047a37928fa196f8e1563dabd36de"
   integrity sha1-eZlTn8ngR6N5KPoZb44VY9q9Nt4=
+
+resolve-cloud-common@^0.0.33:
+  version "0.0.33"
+  resolved "http://npm.resolve-dev.ml:10080/resolve-cloud-common/-/resolve-cloud-common-0.0.33.tgz#bcdffc0d224b1b93b233c694f8d2910312269649"
+  integrity sha512-cm30COc5n8kQ5+UWRl6OKEa1QvkQyj6FFy6+v3+erExPyAHUYkxstm6skf76F69L6ssGBK5V5oMgjTgpLUR4Dg==
+  dependencies:
+    chalk "^4.0.0"
+    debug "^4.1.1"
+    lodash.differencewith "^4.5.0"
+    lodash.isequal "^4.5.0"
 
 resolve-from@^4.0.0:
   version "4.0.0"
