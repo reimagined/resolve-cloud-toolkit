@@ -145,7 +145,8 @@ const ensureLambda = async (args, roleArn: string) => {
       Handler: 'lib/handler.execute',
       Environment: {
         Variables: environment
-      }
+      },
+      Timeout: 900
     })
 
     functionArn = result?.FunctionArn as string
@@ -166,7 +167,8 @@ const ensureLambda = async (args, roleArn: string) => {
       Role: roleArn,
       Environment: {
         Variables: environment
-      }
+      },
+      Timeout: 900
     })
 
     log.debug(`lambda environment updated successfully`)
@@ -179,7 +181,7 @@ const ensureCloudWatchEvent = async (args, lambdaArn): Promise<void> => {
   const cwe = new CloudWatchEvents()
 
   const ruleName = observerCloudWatchRuleName(args.identifier)
-  const schedule = 'rate(1 minute)'
+  const schedule = 'rate(8 hours)'
 
   log.debug(`putting cloud watch rule ${ruleName}`)
   const { RuleArn } = await cwe
@@ -213,11 +215,13 @@ const ensureCloudWatchEvent = async (args, lambdaArn): Promise<void> => {
   log.debug(`target added`)
   log.debug(`removing function permission to be launched by cloud watch`)
 
-  await deleteFunctionPermission({
-    Region: args.region,
-    StatementId: 'cloud-watch-event',
-    FunctionName: lambdaArn
-  })
+  try {
+    await deleteFunctionPermission({
+      Region: args.region,
+      StatementId: 'cloud-watch-event',
+      FunctionName: lambdaArn
+    })
+  } catch {}
 
   log.debug(`function permission removed successfully`)
   log.debug(`adding function permission to be launched by cloud watch`)
