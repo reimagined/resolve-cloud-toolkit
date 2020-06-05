@@ -5,7 +5,7 @@ const { execSync } = require('child_process')
 const archiver = require('archiver')
 
 const zipAsset = async (directory, result) => {
-  const resultOutput = path.resolve(__dirname, result)
+  const resultOutput = path.resolve(process.cwd(), result)
   try {
     await execSync(`zip -r -9 --quiet ${JSON.stringify(resultOutput)} .`, {
       cwd: directory
@@ -34,4 +34,10 @@ const zipAsset = async (directory, result) => {
   }
 }
 
-zipAsset(process.argv[2], process.argv[3])
+const source = process.argv[2]
+const target = process.argv[3]
+
+
+
+
+zipAsset(source, target)
