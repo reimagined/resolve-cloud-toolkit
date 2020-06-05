@@ -1,18 +1,17 @@
+import Lambda from 'aws-sdk/clients/lambda'
+import IAM, { Role } from 'aws-sdk/clients/iam'
 import chalk from 'chalk'
 import path from 'path'
 import fs from 'fs'
 import { execSync } from 'child_process'
 import log from 'consola'
+import { ensureRoleWithPolicy } from 'resolve-cloud-common/iam'
 import { Options, retry } from 'resolve-cloud-common/utils'
-import Lambda from 'aws-sdk/clients/lambda'
-import IAM, { Role } from 'aws-sdk/clients/iam'
+import { observerLambdaName, observerRoleName } from '../../utils'
 
 const observerPath = path.resolve(__dirname, '../../../observer')
 const observerRole = path.resolve(observerPath, 'role.json')
 const observerAsset = path.resolve(observerPath, 'code.zip')
-
-const lambdaName = (id: string): string => `resolve-cloud-toolkit-observer-${id}`
-const roleName = (id: string): string => `resolve-cloud-toolkit-observer-${id}`
 
 const stsAssumeRolePolicy = (): Array<object> => [
   {
@@ -39,7 +38,7 @@ const ensureRole = async args => {
     })
   )
 
-  const name = roleName(args.identifier)
+  const name = observerRoleName(args.identifier)
 
   log.debug(`ensuring observer role ${name}`)
   log.debug(`retrieving observer role policy document`)
@@ -60,11 +59,13 @@ const ensureRole = async args => {
     if (error.code === 'NoSuchEntity') {
       log.debug(`role ${name} not found, will try to create one`)
 
-      role = (await iamCreateRole({
-        AssumeRolePolicyDocument: createPolicy(stsAssumeRolePolicy()),
-        RoleName: name,
-        Description: 'ReSolve Cloud observer role'
-      })).Role
+      role = (
+        await iamCreateRole({
+          AssumeRolePolicyDocument: createPolicy(stsAssumeRolePolicy()),
+          RoleName: name,
+          Description: 'ReSolve Cloud observer role'
+        })
+      ).Role
 
       log.debug(`role ${name} created successfully`)
     } else {
@@ -92,7 +93,7 @@ const ensureLambda = async (args, roleArn: string) => {
   const lambdaUpdateFunctionCode = retry(lambda, lambda.updateFunctionCode)
   const lambdaUpdateFunctionConfiguration = retry(lambda, lambda.updateFunctionConfiguration)
 
-  const functionName = lambdaName(args.identifier)
+  const functionName = observerLambdaName(args.identifier)
 
   log.debug(`retrieving lambda ${functionName}`)
 
@@ -154,7 +155,7 @@ const ensureLambda = async (args, roleArn: string) => {
       Role: roleArn,
       Environment: {
         Variables: environment
-      },
+      }
     })
 
     log.debug(`lambda environment updated successfully`)
