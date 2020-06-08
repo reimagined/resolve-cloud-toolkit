@@ -90,8 +90,7 @@ const handler = async (args): Promise<void> => {
 export = {
   handler,
   command: 'export <table> <file>',
-  aliases: ['rm'],
-  describe: chalk.green('remove environment variable'),
+  describe: chalk.green('exports dynamo db table to file'),
   builder: yargs =>
     yargs
       .positional('table', {
