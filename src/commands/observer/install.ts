@@ -221,7 +221,9 @@ const ensureCloudWatchEvent = async (args, lambdaArn): Promise<void> => {
       StatementId: 'cloud-watch-event',
       FunctionName: lambdaArn
     })
-  } catch {}
+  } catch {
+    /* no-op */
+  }
 
   log.debug(`function permission removed successfully`)
   log.debug(`adding function permission to be launched by cloud watch`)

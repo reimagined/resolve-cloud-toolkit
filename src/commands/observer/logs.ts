@@ -1,8 +1,8 @@
 import chalk from 'chalk'
-import log from 'consola'
-import Lambda from 'aws-sdk/clients/lambda'
 
-const handler = async (args): Promise<void> => {}
+const handler = async (): Promise<void> => {
+  /* not implemented */
+}
 
 export = {
   handler,

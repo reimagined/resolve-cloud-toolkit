@@ -128,7 +128,6 @@ const handler = async (args): Promise<void> => {
 
   log.trace(`database name: ${lifecycleDatabaseName(major)}`)
 
-  const rds = new RDS()
   const execute = executeStatement.bind(null, new RDS(), clusterArn, secretArn)
 
   let sql = `
