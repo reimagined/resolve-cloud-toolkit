@@ -7,7 +7,7 @@
     "chalk": "^4.0.0",
     "consola": "^2.11.0",
     "flat": "^5.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "resolve-cloud-common": "^0.0.33",
     "yargs": "^15.3.1"
   },
